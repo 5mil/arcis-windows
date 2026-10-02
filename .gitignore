@@ -5,3 +5,5 @@ data/
 engine/
 *.gguf
 .DS_Store
+
+dist/

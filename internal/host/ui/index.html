@@ -1,0 +1,106 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1"/>
+<title>Arcis</title>
+<style>
+  :root { color-scheme: dark; }
+  body { margin: 0; background: #070b14; color: #e2e8f0; font: 15px/1.45 "Segoe UI", sans-serif; }
+  header { display: flex; justify-content: space-between; align-items: baseline; padding: 16px 18px 0; }
+  h1 { font-size: 22px; margin: 0; }
+  #status { color: #94a3b8; font-size: 13px; }
+  nav { display: flex; gap: 8px; padding: 12px 18px; }
+  nav button, form button { background: #0b1220; color: #e2e8f0; border: 1px solid #1e293b; border-radius: 8px; padding: 8px 12px; cursor: pointer; }
+  nav button.on { background: #0ea5e9; color: #082f49; border-color: #0ea5e9; font-weight: 600; }
+  main { padding: 0 18px 18px; }
+  section { display: none; }
+  section.on { display: block; }
+  #log, textarea, pre { background: #0b1220; border: 1px solid #1e293b; border-radius: 10px; padding: 12px; min-height: 280px; white-space: pre-wrap; }
+  form { display: flex; gap: 8px; margin-top: 10px; }
+  input, select, textarea { background: #0b1220; color: #fff; border: 1px solid #1e293b; border-radius: 8px; padding: 10px; }
+  input { flex: 1; }
+  .row { display: flex; gap: 8px; margin: 8px 0; }
+  label { color: #94a3b8; font-size: 13px; }
+</style>
+</head>
+<body>
+<header><h1>Arcis</h1><span id="status">starting…</span></header>
+<nav>
+  <button class="on" data-tab="chat">Chat</button>
+  <button data-tab="library">Library</button>
+  <button data-tab="tools">Names & terms</button>
+</nav>
+<main>
+  <section id="chat" class="on">
+    <div id="log">arcis
+On this PC, inside arcis.exe. Ask the library.</div>
+    <form id="ask"><input id="q" placeholder="Ask the library" autocomplete="off"/><button>Ask</button></form>
+  </section>
+  <section id="library">
+    <label>Ingest a text. It stays in %APPDATA%\Arcis.</label>
+    <div class="row"><input id="title" value="Note"/></div>
+    <textarea id="text" placeholder="Paste a passage"></textarea>
+    <form id="save"><button>Save to library</button></form>
+    <pre id="libout"></pre>
+  </section>
+  <section id="tools">
+    <label>Naming engine</label>
+    <div class="row">
+      <select id="kind"><option>wizard</option><option>sage</option><option>place</option></select>
+      <select id="tradition"><option>greek</option><option>latin</option><option>norse</option><option>semitic</option><option>sanskrit</option></select>
+      <select id="rank"><option>initiate</option><option>adept</option><option>scholar</option><option selected>sage</option><option>archon</option><option>sovereign</option></select>
+      <button id="gen" type="button">Generate</button>
+    </div>
+    <label>Terminology</label>
+    <form id="term"><input id="label" value="sophia"/><button>Propose term</button></form>
+    <pre id="toolout"></pre>
+  </section>
+</main>
+<script>
+const log = document.getElementById("log");
+async function api(path, body) {
+  const opt = body ? {method:"POST", headers:{"Content-Type":"application/json"}, body:JSON.stringify(body)} : {};
+  const r = await fetch(path, opt);
+  return r.json();
+}
+async function status() {
+  try {
+    const h = await api("/health");
+    document.getElementById("status").textContent = `${h.mode} · ${h.tier} · ${h.platform}`;
+  } catch (e) {
+    document.getElementById("status").textContent = "host not responding";
+  }
+}
+status();
+document.querySelectorAll("nav button").forEach(b => b.onclick = () => {
+  document.querySelectorAll("nav button, section").forEach(n => n.classList.remove("on"));
+  b.classList.add("on");
+  document.getElementById(b.dataset.tab).classList.add("on");
+});
+document.getElementById("ask").onsubmit = async e => {
+  e.preventDefault();
+  const q = document.getElementById("q").value.trim();
+  if (!q) return;
+  document.getElementById("q").value = "";
+  log.textContent += `\n\nyou\n${q}\n\narcis\nthinking…`;
+  const res = await api("/infer", {prompt:q, max_tokens:"192"});
+  log.textContent = log.textContent.replace(/thinking…$/, res.result || JSON.stringify(res));
+};
+document.getElementById("save").onsubmit = async e => {
+  e.preventDefault();
+  const saved = await api("/library/ingest", {title:document.getElementById("title").value, text:document.getElementById("text").value});
+  document.getElementById("libout").textContent = JSON.stringify(saved, null, 2);
+};
+document.getElementById("gen").onclick = async () => {
+  const rec = await api("/name", {kind:kind.value, tradition:tradition.value, rank:rank.value});
+  toolout.textContent += JSON.stringify(rec) + "\n";
+};
+document.getElementById("term").onsubmit = async e => {
+  e.preventDefault();
+  const rec = await api("/term/propose", {label:label.value, definition:"local term", domain:"general"});
+  toolout.textContent += JSON.stringify(rec) + "\n";
+};
+</script>
+</body>
+</html>

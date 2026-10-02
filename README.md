@@ -1,8 +1,26 @@
 # Arcis for Windows
 
-Windows desktop host for [arcis](https://github.com/5mil/arcis) — the Zig-native AI engine.
+One file: `arcis.exe`. The desktop window and the local server are inside that binary. It binds `127.0.0.1`, opens the chat window, and keeps library, names, and terms in `%APPDATA%\Arcis`.
 
-Chat, library RAG, search, naming, terminology, and workflow all run on the host PC. Nothing is sent off the machine unless you explicitly point the engine at a local model server you already run (Ollama on `127.0.0.1`).
+## Run
+
+Double-click `arcis.exe`, or:
+
+```bat
+arcis.exe
+arcis.exe --self-test
+```
+
+Build it on this repo with Go:
+
+```bat
+go test ./internal/host/
+set GOOS=windows
+set GOARCH=amd64
+go build -o arcis.exe ./cmd/arcis
+```
+
+Zig 0.16 is only needed if you later link the GGUF engine. This exe does not contain a model. Chat answers from the local library packed with the window.
 
 ## What you get
 
