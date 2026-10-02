@@ -33,7 +33,7 @@ py -3 -m app.selftest
 
 ## Build the Zig engine on Windows
 
-Requires [Zig 0.14+](https://ziglang.org/download/).
+Requires [Zig 0.16](https://ziglang.org/download/) (latest stable; 0.16.0).
 
 ```powershell
 powershell -ExecutionPolicy Bypass -File windows\build-engine.ps1

@@ -12,7 +12,7 @@ if (-not (Test-Path (Join-Path $src "build.zig"))) {
   git clone --depth 1 https://github.com/5mil/arcis.git $src
 }
 if (-not (Get-Command zig -ErrorAction SilentlyContinue)) {
-  Write-Error "Zig 0.14+ is required. https://ziglang.org/download/"
+  Write-Error "Zig 0.16 (latest stable) is required. https://ziglang.org/download/"
 }
 Push-Location $src
 zig build -Doptimize=ReleaseSafe -Dtarget=x86_64-windows-gnu
