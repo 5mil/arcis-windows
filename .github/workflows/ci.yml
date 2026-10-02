@@ -1,0 +1,16 @@
+name: selftest
+
+on:
+  push:
+  pull_request:
+
+jobs:
+  host:
+    runs-on: windows-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - name: Self-test local Arcis host
+        run: python -m app.selftest

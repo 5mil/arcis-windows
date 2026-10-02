@@ -1,0 +1,7 @@
+*.pyc
+__pycache__/
+.venv/
+data/
+engine/
+*.gguf
+.DS_Store
