@@ -54,8 +54,14 @@ func TestContainedHost(t *testing.T) {
 		t.Fatalf("unknown model %d %+v", code, missingModel)
 	}
 	code, health := get("/health")
-	if code != 200 || health["status"] != "ok" || health["platform"] != "arcis.exe" || health["models"] != float64(2) {
+	if code != 200 || health["status"] != "ok" || health["platform"] != "arcis.exe" || health["models"] != float64(2) || health["light_weights"] != true {
 		t.Fatalf("health %+v", health)
+	}
+	if _, err := os.Stat(filepath.Join(dir, "weights", "phonemes.json")); err != nil {
+		t.Fatal(err)
+	}
+	if _, err := os.Stat(filepath.Join(dir, "weights", "library-embed.json")); err != nil {
+		t.Fatal(err)
 	}
 	code, page := get("/")
 	if code != 200 {

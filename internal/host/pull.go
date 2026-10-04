@@ -16,6 +16,12 @@ type PullJob struct {
 	File     string `json:"file"`
 }
 
+func (h *Host) StartHousePull() {
+	for _, m := range HouseModels() {
+		_, _ = h.startPull(m.ID)
+	}
+}
+
 func (h *Host) pullStatus() []PullJob {
 	h.mu.Lock()
 	defer h.mu.Unlock()

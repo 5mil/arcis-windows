@@ -79,6 +79,7 @@ func New(root, tier string) *Host {
 		}
 		h.save("library.json", h.library)
 	}
+	h.ensureLightWeights()
 	return h
 }
 
@@ -131,7 +132,7 @@ func (h *Host) route(w http.ResponseWriter, r *http.Request) {
 				break
 			}
 		}
-		writeJSON(w, 200, map[string]any{"status": "ok", "model_loaded": loaded, "models": len(models), "mode": "embedded", "tier": h.tier, "platform": "arcis.exe"})
+		writeJSON(w, 200, map[string]any{"status": "ok", "model_loaded": loaded, "models": len(models), "light_weights": true, "mode": "embedded", "tier": h.tier, "platform": "arcis.exe"})
 		return
 	}
 	body := map[string]any{}

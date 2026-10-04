@@ -31,6 +31,9 @@ func main() {
 		os.Exit(1)
 	}
 	fmt.Printf("arcis.exe listening on http://%s  data=%s\n", addr, data)
+	// Server is up. Light weights were generated if missing.
+	// Free house GGUFs influence the design, so pull them without waiting on a click.
+	go h.StartHousePull()
 	if *noWindow {
 		select {}
 	}
