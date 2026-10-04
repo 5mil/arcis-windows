@@ -138,4 +138,3 @@ func (h *Host) finishPull(id string, n int64, err error) {
 	h.pulls[id] = job
 }
 
-func (h *Host) download(m Model, dest string) {
