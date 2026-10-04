@@ -64,6 +64,7 @@ type Host struct {
 	names    []Name
 	jobs     int
 	sessions int
+	pulls    map[string]PullJob
 }
 
 func New(root, tier string) *Host {
@@ -242,7 +243,18 @@ func (h *Host) route(w http.ResponseWriter, r *http.Request) {
 		h.mu.Unlock()
 		writeJSON(w, 200, doc)
 	case path == "/models" && r.Method == http.MethodGet:
-		writeJSON(w, 200, map[string]any{"models": h.modelStatus()})
+		writeJSON(w, 200, map[string]any{"models": h.modelStatus(), "pulls": h.pullStatus(), "server": "up"})
+	case path == "/models/pull" && r.Method == http.MethodPost:
+		id, _ := body["id"].(string)
+		if id == "" {
+			id = DefaultModel().ID
+		}
+		job, err := h.startPull(id)
+		if err != nil {
+			writeJSON(w, 404, map[string]string{"error": "unknown model"})
+			return
+		}
+		writeJSON(w, 202, job)
 	case path == "/library" && r.Method == http.MethodGet:
 		writeJSON(w, 200, map[string]any{"books": h.library})
 	default:

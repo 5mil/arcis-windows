@@ -29,13 +29,22 @@
 <nav>
   <button class="on" data-tab="chat">Chat</button>
   <button data-tab="library">Library</button>
+  <button data-tab="models">Models</button>
   <button data-tab="tools">Names & terms</button>
 </nav>
 <main>
   <section id="chat" class="on">
     <div id="log">arcis
-House models are r1-1.5b-q4 (default) and llama32-1b-q4. Weights belong in models/gguf next to this app.</div>
+Server is up. House design is r1-1.5b-q4 and llama32-1b-q4. Pull the free GGUF weights from the Models tab when you want them.</div>
     <form id="ask"><input id="q" placeholder="Ask the library" autocomplete="off"/><button>Ask</button></form>
+  </section>
+  <section id="models">
+    <label>Free GGUF weights. The server is already up. Pull only if this PC should hold them.</label>
+    <div class="row">
+      <button id="pull-default" type="button">Pull r1-1.5b-q4</button>
+      <button id="pull-llama" type="button">Pull llama32-1b-q4</button>
+    </div>
+    <pre id="modelout">waiting for server…</pre>
   </section>
   <section id="library">
     <label>Ingest a text. It stays in %APPDATA%\Arcis.</label>
@@ -72,7 +81,21 @@ async function status() {
     document.getElementById("status").textContent = "host not responding";
   }
 }
+async function models() {
+  const m = await api("/models");
+  document.getElementById("modelout").textContent = JSON.stringify(m, null, 2);
+}
+document.getElementById("pull-default").onclick = async () => {
+  document.getElementById("modelout").textContent = "server up, pulling r1-1.5b-q4…";
+  await api("/models/pull", {id:"r1-1.5b-q4"});
+  models();
+};
+document.getElementById("pull-llama").onclick = async () => {
+  await api("/models/pull", {id:"llama32-1b-q4"});
+  models();
+};
 status();
+models();
 document.querySelectorAll("nav button").forEach(b => b.onclick = () => {
   document.querySelectorAll("nav button, section").forEach(n => n.classList.remove("on"));
   b.classList.add("on");

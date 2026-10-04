@@ -46,8 +46,12 @@ func TestContainedHost(t *testing.T) {
 	}
 	code, models := get("/models")
 	list, _ := models["models"].([]any)
-	if code != 200 || len(list) != 2 {
+	if code != 200 || len(list) != 2 || models["server"] != "up" {
 		t.Fatalf("house models %+v", models)
+	}
+	code, missingModel := post("/models/pull", map[string]string{"id": "not-ours"})
+	if code != 404 {
+		t.Fatalf("unknown model %d %+v", code, missingModel)
 	}
 	code, health := get("/health")
 	if code != 200 || health["status"] != "ok" || health["platform"] != "arcis.exe" || health["models"] != float64(2) {
