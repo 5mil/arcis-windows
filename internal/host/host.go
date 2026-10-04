@@ -122,7 +122,15 @@ func (h *Host) route(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	if r.Method == http.MethodGet && path == "/health" {
-		writeJSON(w, 200, map[string]any{"status": "ok", "model_loaded": false, "mode": "embedded", "tier": h.tier, "platform": "arcis.exe"})
+		models := h.modelStatus()
+		loaded := false
+		for _, m := range models {
+			if m.Ready {
+				loaded = true
+				break
+			}
+		}
+		writeJSON(w, 200, map[string]any{"status": "ok", "model_loaded": loaded, "models": len(models), "mode": "embedded", "tier": h.tier, "platform": "arcis.exe"})
 		return
 	}
 	body := map[string]any{}
@@ -233,11 +241,25 @@ func (h *Host) route(w http.ResponseWriter, r *http.Request) {
 		h.save("library.json", h.library)
 		h.mu.Unlock()
 		writeJSON(w, 200, doc)
+	case path == "/models" && r.Method == http.MethodGet:
+		writeJSON(w, 200, map[string]any{"models": h.modelStatus()})
 	case path == "/library" && r.Method == http.MethodGet:
 		writeJSON(w, 200, map[string]any{"books": h.library})
 	default:
 		writeJSON(w, 404, map[string]string{"error": "not found"})
 	}
+}
+
+func (h *Host) modelStatus() []Model {
+	models := HouseModels()
+	for i := range models {
+		path := filepath.Join(h.root, "models", models[i].File)
+		if st, err := os.Stat(path); err == nil && st.Size() > 0 {
+			models[i].Ready = true
+			models[i].Bytes = st.Size()
+		}
+	}
+	return models
 }
 
 func (h *Host) reply(prompt string) string {

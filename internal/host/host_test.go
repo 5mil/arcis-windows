@@ -44,8 +44,13 @@ func TestContainedHost(t *testing.T) {
 		_ = json.Unmarshal(b, &out)
 		return res.StatusCode, out
 	}
+	code, models := get("/models")
+	list, _ := models["models"].([]any)
+	if code != 200 || len(list) != 2 {
+		t.Fatalf("house models %+v", models)
+	}
 	code, health := get("/health")
-	if code != 200 || health["status"] != "ok" || health["platform"] != "arcis.exe" {
+	if code != 200 || health["status"] != "ok" || health["platform"] != "arcis.exe" || health["models"] != float64(2) {
 		t.Fatalf("health %+v", health)
 	}
 	code, page := get("/")

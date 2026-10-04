@@ -7,3 +7,6 @@ engine/
 .DS_Store
 
 dist/
+
+models/
+*.gguf
