@@ -68,7 +68,7 @@ func TestContainedHost(t *testing.T) {
 		t.Fatal("desktop ui not embedded")
 	}
 	code, chat := post("/infer", map[string]string{"prompt": "What is Arcis?"})
-	if code != 200 || !strings.Contains(chat["result"].(string), "Arcis") {
+	if code != 200 || !strings.Contains(chat["result"].(string), "Arcis") || chat["model"] != "r1-1.5b-q4" {
 		t.Fatalf("infer %+v", chat)
 	}
 	code, rag := post("/rag", map[string]string{"query": "library"})

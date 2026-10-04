@@ -145,7 +145,7 @@ func (h *Host) route(w http.ResponseWriter, r *http.Request) {
 			writeJSON(w, 400, map[string]string{"error": "missing prompt"})
 			return
 		}
-		writeJSON(w, 200, map[string]string{"result": h.reply(prompt), "mode": "embedded"})
+		writeJSON(w, 200, map[string]string{"result": h.reply(prompt), "mode": "embedded", "model": DefaultModel().ID})
 	case path == "/rag" && r.Method == http.MethodPost:
 		q, _ := body["query"].(string)
 		if q == "" {
