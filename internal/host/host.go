@@ -256,6 +256,25 @@ func (h *Host) route(w http.ResponseWriter, r *http.Request) {
 			return
 		}
 		writeJSON(w, 202, job)
+	case path == "/media/image" && r.Method == http.MethodPost:
+		prompt, _ := body["prompt"].(string)
+		if prompt == "" {
+			writeJSON(w, 400, map[string]string{"error": "missing prompt"})
+			return
+		}
+		name, err := h.drawImage(prompt)
+		if err != nil {
+			writeJSON(w, 500, map[string]string{"error": err.Error()})
+			return
+		}
+		writeJSON(w, 200, map[string]string{"file": name, "url": "/media/" + name, "maker": "arcis"})
+	case strings.HasPrefix(path, "/media/") && r.Method == http.MethodGet:
+		name := strings.TrimPrefix(path, "/media/")
+		if name == "" || strings.Contains(name, "..") {
+			writeJSON(w, 400, map[string]string{"error": "bad file"})
+			return
+		}
+		http.ServeFile(w, r, filepath.Join(h.root, "media", name))
 	case path == "/library" && r.Method == http.MethodGet:
 		writeJSON(w, 200, map[string]any{"books": h.library})
 	default:
