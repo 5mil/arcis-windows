@@ -40,11 +40,11 @@ func main() {
 	url := "http://" + addr + "/"
 	cmd := openWindow(url)
 	if cmd == nil {
-		fmt.Println("open", url)
+		fmt.Println("no window opened, leave this running and open", url)
 		select {}
 	}
+	fmt.Println("window", url)
 	_ = cmd.Wait()
-	// Edge/Chrome app mode exits when the window closes.
 	time.Sleep(200 * time.Millisecond)
 }
 
@@ -54,14 +54,26 @@ func openWindow(url string) *exec.Cmd {
 		_ = cmd.Start()
 		return nil
 	}
-	edge := filepath.Join(os.Getenv("ProgramFiles(x86)"), "Microsoft", "Edge", "Application", "msedge.exe")
-	if _, err := os.Stat(edge); err != nil {
-		edge = filepath.Join(os.Getenv("ProgramFiles"), "Microsoft", "Edge", "Application", "msedge.exe")
+	candidates := []string{
+		filepath.Join(os.Getenv("ProgramFiles(x86)"), "Microsoft", "Edge", "Application", "msedge.exe"),
+		filepath.Join(os.Getenv("ProgramFiles"), "Microsoft", "Edge", "Application", "msedge.exe"),
+		filepath.Join(os.Getenv("LocalAppData"), "Microsoft", "Edge", "Application", "msedge.exe"),
+		filepath.Join(os.Getenv("ProgramFiles"), "Google", "Chrome", "Application", "chrome.exe"),
+		filepath.Join(os.Getenv("ProgramFiles(x86)"), "Google", "Chrome", "Application", "chrome.exe"),
+		filepath.Join(os.Getenv("LocalAppData"), "Google", "Chrome", "Application", "chrome.exe"),
 	}
-	if _, err := os.Stat(edge); err == nil {
-		return exec.Command(edge, "--app="+url, "--window-size=980,680")
+	for _, bin := range candidates {
+		if _, err := os.Stat(bin); err != nil {
+			continue
+		}
+		cmd := exec.Command(bin, "--app="+url, "--window-size=980,720")
+		if err := cmd.Start(); err == nil {
+			return cmd
+		}
 	}
 	cmd := exec.Command("rundll32", "url.dll,FileProtocolHandler", url)
-	_ = cmd.Start()
+	if err := cmd.Start(); err == nil {
+		return nil
+	}
 	return nil
 }
