@@ -30,6 +30,7 @@
   <button class="on" data-tab="chat">Chat</button>
   <button data-tab="library">Library</button>
   <button data-tab="models">Models</button>
+  <button data-tab="pictures">Pictures</button>
   <button data-tab="tools">Names & terms</button>
 </nav>
 <main>
@@ -45,6 +46,11 @@ Server is up. Missing light weights were generated on this PC. Free house GGUFs 
       <button id="pull-llama" type="button">Pull llama32-1b-q4</button>
     </div>
     <pre id="modelout">waiting for server…</pre>
+  </section>
+  <section id="pictures">
+    <label>Any prompt. The picture is drawn on this PC and saved under media.</label>
+    <form id="pic"><input id="picprompt" placeholder="a red barn at dusk" autocomplete="off"/><button>Draw</button></form>
+    <img id="picout" alt="" style="margin-top:12px;max-width:100%;border-radius:10px;display:none"/>
   </section>
   <section id="library">
     <label>Ingest a text. It stays in %APPDATA%\Arcis.</label>
@@ -93,6 +99,13 @@ document.getElementById("pull-default").onclick = async () => {
 document.getElementById("pull-llama").onclick = async () => {
   await api("/models/pull", {id:"llama32-1b-q4"});
   models();
+};
+document.getElementById("pic").onsubmit = async e => {
+  e.preventDefault();
+  const rec = await api("/media/image", {prompt: document.getElementById("picprompt").value});
+  const img = document.getElementById("picout");
+  img.src = rec.url;
+  img.style.display = "block";
 };
 status();
 models();

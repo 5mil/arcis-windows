@@ -105,7 +105,7 @@ func TestContainedHost(t *testing.T) {
 	if code != 200 || job["status"] != "completed" {
 		t.Fatalf("job %+v", job)
 	}
-	code, img := post("/media/image", map[string]string{"prompt": "goku kermit"})
+	code, img := post("/media/image", map[string]string{"prompt": "a red barn at dusk"})
 	if code != 200 || img["maker"] != "arcis" || !strings.HasSuffix(img["file"].(string), ".png") {
 		t.Fatalf("image %+v", img)
 	}
