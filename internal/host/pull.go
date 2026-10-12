@@ -26,8 +26,8 @@ func (h *Host) pullStatus() []PullJob {
 	h.mu.Lock()
 	defer h.mu.Unlock()
 	out := make([]PullJob, 0, len(h.pulls))
-	for _, id := range []string{"r1-1.5b-q4", "llama32-1b-q4"} {
-		if job, ok := h.pulls[id]; ok {
+	for _, m := range HouseModels() {
+		if job, ok := h.pulls[m.ID]; ok {
 			out = append(out, job)
 		}
 	}

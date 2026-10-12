@@ -109,6 +109,9 @@ func TestContainedHost(t *testing.T) {
 	if code != 200 || img["maker"] != "arcis" || !strings.HasSuffix(img["file"].(string), ".png") {
 		t.Fatalf("image %+v", img)
 	}
+	if img["mode"] != "draw" && img["mode"] != "photo" {
+		t.Fatalf("mode %+v", img)
+	}
 	if _, err := os.Stat(filepath.Join(dir, "media", img["file"].(string))); err != nil {
 		t.Fatal(err)
 	}

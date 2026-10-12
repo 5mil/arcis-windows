@@ -262,12 +262,12 @@ func (h *Host) route(w http.ResponseWriter, r *http.Request) {
 			writeJSON(w, 400, map[string]string{"error": "missing prompt"})
 			return
 		}
-		name, err := h.drawImage(prompt)
+		name, mode, err := h.photoRender(prompt)
 		if err != nil {
 			writeJSON(w, 500, map[string]string{"error": err.Error()})
 			return
 		}
-		writeJSON(w, 200, map[string]string{"file": name, "url": "/media/" + name, "maker": "arcis"})
+		writeJSON(w, 200, map[string]string{"file": name, "url": "/media/" + name, "maker": "arcis", "mode": mode})
 	case strings.HasPrefix(path, "/media/") && r.Method == http.MethodGet:
 		name := strings.TrimPrefix(path, "/media/")
 		if name == "" || strings.Contains(name, "..") {

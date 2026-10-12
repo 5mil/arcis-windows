@@ -48,7 +48,7 @@ Server is up. Missing light weights were generated on this PC. Free house GGUFs 
     <pre id="modelout">waiting for server…</pre>
   </section>
   <section id="pictures">
-    <label>Any prompt. The picture is drawn on this PC and saved under media.</label>
+    <label>Any prompt. Open photo weights (FLUX.2 Klein) render when present; otherwise Arcis draws on this PC.</label>
     <form id="pic"><input id="picprompt" placeholder="a red barn at dusk" autocomplete="off"/><button>Draw</button></form>
     <img id="picout" alt="" style="margin-top:12px;max-width:100%;border-radius:10px;display:none"/>
   </section>
@@ -106,6 +106,7 @@ document.getElementById("pic").onsubmit = async e => {
   const img = document.getElementById("picout");
   img.src = rec.url;
   img.style.display = "block";
+  document.getElementById("status").textContent = (rec.mode || "draw") + " · " + (rec.file || "");
 };
 status();
 models();
