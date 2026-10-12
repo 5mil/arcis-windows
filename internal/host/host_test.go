@@ -46,7 +46,7 @@ func TestContainedHost(t *testing.T) {
 	}
 	code, models := get("/models")
 	list, _ := models["models"].([]any)
-	if code != 200 || len(list) != 2 || models["server"] != "up" {
+	if code != 200 || len(list) != 5 || models["server"] != "up" {
 		t.Fatalf("house models %+v", models)
 	}
 	code, missingModel := post("/models/pull", map[string]string{"id": "not-ours"})
@@ -54,7 +54,7 @@ func TestContainedHost(t *testing.T) {
 		t.Fatalf("unknown model %d %+v", code, missingModel)
 	}
 	code, health := get("/health")
-	if code != 200 || health["status"] != "ok" || health["platform"] != "arcis.exe" || health["models"] != float64(2) || health["light_weights"] != true {
+	if code != 200 || health["status"] != "ok" || health["platform"] != "arcis.exe" || health["models"] != float64(5) || health["light_weights"] != true {
 		t.Fatalf("health %+v", health)
 	}
 	if _, err := os.Stat(filepath.Join(dir, "weights", "phonemes.json")); err != nil {
